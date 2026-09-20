@@ -1,0 +1,13 @@
+Culmen
+Copyright 2026 GianMattia Torrente
+
+This product includes software developed as part of the Culmen project,
+licensed under the Apache License, Version 2.0.
+
+Verification of the orbital propagator uses the SGP4 test data published in:
+  Vallado, D. A., Crawford, P., Hujsak, R., and Kelso, T. S.,
+  "Revisiting Spacetrack Report #3", AIAA 2006-6753.
+distributed with the `sgp4` Python package (MIT).
+
+Third-party dependency licenses are listed in THIRD_PARTY.md.
+Third-party data provenance and attribution are listed in data/README.md.

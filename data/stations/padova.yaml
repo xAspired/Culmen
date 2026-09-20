@@ -1,0 +1,10 @@
+schema_version: 1
+name: Padova
+description: >
+  Example ground station used by the Culmen demo. Coordinates are an
+  approximate city-centre location, not a real installed antenna site.
+location:
+  lat_deg: 45.4064
+  lon_deg: 11.8768
+  alt_m: 12.0
+min_elevation_deg: 10.0

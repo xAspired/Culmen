@@ -1,0 +1,14 @@
+# Example element sets for the GroundLink demo.
+#
+# Source: SGP4-VER.TLE, the official SGP4 verification set from Vallado,
+# Crawford, Hujsak & Kelso, "Revisiting Spacetrack Report #3" (AIAA 2006-6753),
+# as distributed with the `sgp4` Python package. These are historical
+# reference element sets published for algorithm verification, NOT current
+# operational data -- their epochs are years in the past and they must never
+# be used for real planning. See data/README.md.
+LEO-DEMO-6251
+1 06251U 62025E   06176.82412014  .00008885  00000-0  12808-3 0  3985
+2 06251  58.0579  54.0425 0030035 139.1568 221.1854 15.56387291  6774
+LEO-DEMO-28057
+1 28057U 03049A   06177.78615833  .00000060  00000-0  35940-4 0  1836
+2 28057  98.4283 247.6961 0000884  88.1964 271.9322 14.35478080140550

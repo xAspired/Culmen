@@ -1,0 +1,27 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.egg-info/
+build/
+dist/
+.venv/
+data/cache/
+
+# frontend
+frontend/node_modules/
+frontend/dist/
+
+# Fetched data: Culmen redistributes no third-party catalogue (data/README.md).
+# The small historical example stays committed; everything you fetch does not.
+data/tle/*.tle
+!data/tle/example-leo.tle
+data/tle/.fetch-cache.json
+# Imported station catalogues only. Stations you write by hand live directly
+# in data/stations/ and ARE committable -- they are your own work. Anything
+# derived from a CC BY-SA source (SatNOGS) carries that obligation and must
+# not ship alongside Apache-2.0 code.
+data/stations/imported/

@@ -1,0 +1,119 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: ${{ matrix.os }} / Python ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python-version: ["3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Lint
+        run: ruff check .
+
+      - name: Type check
+        # strict on core/ only; see ADR 0001
+        run: mypy
+
+      - name: Test
+        # The suite is fully offline: the SGP4 verification vectors ship with
+        # the sgp4 package and the timescale is built from Skyfield's bundled
+        # leap-second table. A network failure here means something regressed.
+        run: pytest --cov=core --cov-report=term-missing
+
+  core-is-standalone:
+    name: core/ installs and tests without the extras
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install runtime dependencies only
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+          pip install pytest
+
+      - name: core/ must import and run with no web or database packages present
+        # ADR 0001: core/ is a pure library. This job fails if anything in it
+        # grows a dependency on FastAPI, SQLAlchemy or an HTTP client.
+        run: |
+          python -c "import core.orbit.propagator, core.passes.finder, core.rf.link, core.validation.contact"
+          pytest tests/test_architecture.py -q
+
+  examples:
+    name: examples run end to end
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+      - run: python examples/01_passes.py
+      - run: python examples/02_validate.py
+      - run: python examples/03_schedule.py
+
+  frontend:
+    name: frontend type-checks and builds
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: npm install --no-audit --no-fund
+      - name: Type check
+        # tsconfig is strict, including noUncheckedIndexedAccess and
+        # exactOptionalPropertyTypes.
+        run: npx tsc --noEmit
+      - run: npm run build
+
+  docker:
+    name: image builds and serves
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t culmen/api:ci .
+      - name: the container answers /health
+        run: |
+          docker run -d --name culmen -p 8000:8000 culmen/api:ci
+          for i in $(seq 1 30); do
+            if curl -fsS http://localhost:8000/health; then exit 0; fi
+            sleep 1
+          done
+          echo "service did not become healthy"; docker logs culmen; exit 1

@@ -1,0 +1,36 @@
+# Culmen development stack.
+#
+#   docker compose up --build
+#   open http://localhost:8000        (the UI)
+#   open http://localhost:8000/docs   (the API)
+#
+# One service: the image builds the frontend and the API serves it, so there
+# is no second web server whose only job is handing over static files.
+#
+# There is no database service here, deliberately: see ADR 0009. Passes and
+# contacts are a cache of a calculation, not a source of truth, and a cache
+# that outlives its inputs is worse than no cache. Postgres arrives when there
+# is something worth persisting -- user-defined stations, saved plans -- and
+# with it a migration story.
+
+services:
+  api:
+    build: .
+    image: culmen/api:dev
+    ports:
+      - "8000:8000"
+    environment:
+      CULMEN_STATIONS_DIR: /app/data/stations
+      # Element sets found here are imported at startup. Still never fetched
+      # from the network -- these are files you put on disk.
+      CULMEN_TLE_DIR: /app/data/tle
+    volumes:
+      # Station definitions are the user's own data: editable without a rebuild.
+      - ./data/stations:/app/data/stations:ro
+      - ./data/tle:/app/data/tle:ro
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/health').status==200 else 1)"]
+      interval: 30s
+      timeout: 3s
+      start_period: 10s
+    restart: unless-stopped

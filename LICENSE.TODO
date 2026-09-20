@@ -1,0 +1,10 @@
+Placeholder.
+
+The project is licensed Apache-2.0 (see docs/adr/0003-apache-2-0-license.md),
+but this container has no outbound network access to fetch the canonical
+text. Before the first public commit, replace this file with LICENSE
+containing the verbatim Apache License 2.0 text from:
+
+    https://www.apache.org/licenses/LICENSE-2.0.txt
+
+and fill in the copyright line in the appendix. Do not paraphrase it.
