@@ -1,4 +1,4 @@
-<img src="docs/images/icon-512.png" alt="Culmen" width="120" align="right">
+<img src="docs/images/icon.png" alt="Culmen" width="120" align="right">
 
 # Culmen
 
